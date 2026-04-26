@@ -1,0 +1,157 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<mxGraphModel dx="1422" dy="762" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1654" pageHeight="1169" math="0" shadow="0">
+  <root>
+    <mxCell id="0" />
+    <mxCell id="1" parent="0" />
+
+    <!-- ===== TITLE ===== -->
+    <mxCell id="title" value="TEXT-TO-SQL FOR BUSINESS — System Architecture (Production-Grade)" style="text;html=1;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontSize=18;fontStyle=1;fontColor=#1a1a2e;" vertex="1" parent="1">
+      <mxGeometry x="200" y="20" width="1254" height="40" as="geometry" />
+    </mxCell>
+
+    <!-- ===== CLIENT LAYER ===== -->
+    <mxCell id="cl" value="CLIENT LAYER" style="swimlane;startSize=30;fillColor=#dae8fc;strokeColor=#6c8ebf;fontStyle=1;fontSize=13;" vertex="1" parent="1">
+      <mxGeometry x="200" y="80" width="1250" height="90" as="geometry" />
+    </mxCell>
+    <mxCell id="cl1" value="🌐 Web UI&#xa;(Streamlit / React)" style="rounded=1;whiteSpace=wrap;fillColor=#dae8fc;strokeColor=#6c8ebf;" vertex="1" parent="cl">
+      <mxGeometry x="80" y="40" width="200" height="40" as="geometry" />
+    </mxCell>
+    <mxCell id="cl2" value="📡 API Client" style="rounded=1;whiteSpace=wrap;fillColor=#dae8fc;strokeColor=#6c8ebf;" vertex="1" parent="cl">
+      <mxGeometry x="520" y="40" width="200" height="40" as="geometry" />
+    </mxCell>
+    <mxCell id="cl3" value="💬 Slack Bot (v2)" style="rounded=1;whiteSpace=wrap;fillColor=#dae8fc;strokeColor=#6c8ebf;" vertex="1" parent="cl">
+      <mxGeometry x="960" y="40" width="200" height="40" as="geometry" />
+    </mxCell>
+
+    <!-- CLIENT → GATEWAY arrow -->
+    <mxCell id="e_cl_gw" style="edgeStyle=orthogonalEdgeStyle;" edge="1" source="cl" target="gw" parent="1">
+      <mxGeometry relative="1" as="geometry" />
+    </mxCell>
+    <mxCell id="e_cl_gw_lbl" value="HTTPS / WSS" style="edgeLabel;resizable=0;" vertex="1" connectable="0" parent="e_cl_gw">
+      <mxGeometry relative="0.5" as="geometry" />
+    </mxCell>
+
+    <!-- ===== API GATEWAY ===== -->
+    <mxCell id="gw" value="&lt;b&gt;API GATEWAY (FastAPI + Nginx)&lt;/b&gt;&#xa;Auth (JWT/SSO) | Rate Limiting (20 req/min/user) | Request Logging (traceID) | CORS" style="rounded=1;whiteSpace=wrap;fillColor=#fff2cc;strokeColor=#d6b656;fontSize=12;" vertex="1" parent="1">
+      <mxGeometry x="400" y="230" width="860" height="60" as="geometry" />
+    </mxCell>
+
+    <!-- GATEWAY → QUERY PIPELINE -->
+    <mxCell id="e_gw_qp" style="edgeStyle=orthogonalEdgeStyle;" edge="1" source="gw" target="qp" parent="1">
+      <mxGeometry relative="1" as="geometry" />
+    </mxCell>
+    <!-- GATEWAY → ADMIN -->
+    <mxCell id="e_gw_adm" style="edgeStyle=orthogonalEdgeStyle;" edge="1" source="gw" target="adm" parent="1">
+      <mxGeometry relative="1" as="geometry" />
+    </mxCell>
+
+    <!-- ===== QUERY PIPELINE ===== -->
+    <mxCell id="qp" value="QUERY PIPELINE (Core Engine)" style="swimlane;startSize=30;fillColor=#d5e8d4;strokeColor=#82b366;fontStyle=1;fontSize=13;" vertex="1" parent="1">
+      <mxGeometry x="200" y="360" width="900" height="340" as="geometry" />
+    </mxCell>
+
+    <!-- Step 1 -->
+    <mxCell id="s1" value="1️⃣ NL Processor&#xa;• Detect ngôn ngữ VI/EN&#xa;• Glossary Mapping&#xa;• Phát hiện câu mơ hồ / nguy hiểm" style="rounded=1;whiteSpace=wrap;fillColor=#d5e8d4;strokeColor=#82b366;fontSize=11;" vertex="1" parent="qp">
+      <mxGeometry x="20" y="50" width="190" height="80" as="geometry" />
+    </mxCell>
+    <!-- Step 2 -->
+    <mxCell id="s2" value="2️⃣ Schema Retriever&#xa;• Embed câu hỏi&#xa;• Similarity search → top-K tables&#xa;• Inject FK relationships" style="rounded=1;whiteSpace=wrap;fillColor=#d5e8d4;strokeColor=#82b366;fontSize=11;" vertex="1" parent="qp">
+      <mxGeometry x="230" y="50" width="190" height="80" as="geometry" />
+    </mxCell>
+    <!-- Step 3 -->
+    <mxCell id="s3" value="3️⃣ SQL Generator (LLM)&#xa;• qwen2.5-coder:7b (local)&#xa;• Fallback: Gemini Flash&#xa;• Few-shot + System Prompt" style="rounded=1;whiteSpace=wrap;fillColor=#d5e8d4;strokeColor=#82b366;fontSize=11;" vertex="1" parent="qp">
+      <mxGeometry x="440" y="50" width="190" height="80" as="geometry" />
+    </mxCell>
+    <!-- Step 4 -->
+    <mxCell id="s4" value="4️⃣ SQL Validator 🔒&#xa;• Layer 1: Syntax (AST parse)&#xa;• Layer 2: Security (blacklist)&#xa;• Layer 3: Schema check" style="rounded=1;whiteSpace=wrap;fillColor=#ffe6cc;strokeColor=#d79b00;fontSize=11;" vertex="1" parent="qp">
+      <mxGeometry x="650" y="50" width="190" height="80" as="geometry" />
+    </mxCell>
+    <!-- Step 5 -->
+    <mxCell id="s5" value="5️⃣ SQL Executor&#xa;• Read Replica only&#xa;• Timeout 30s, TOP 1000 rows&#xa;• Connection Pool (SQLAlchemy)" style="rounded=1;whiteSpace=wrap;fillColor=#d5e8d4;strokeColor=#82b366;fontSize=11;" vertex="1" parent="qp">
+      <mxGeometry x="230" y="200" width="190" height="80" as="geometry" />
+    </mxCell>
+    <!-- Step 6 -->
+    <mxCell id="s6" value="6️⃣ Explainer (LLM)&#xa;• Model nhỏ hơn (3b)&#xa;• Input: câu hỏi + SQL + top 5 rows&#xa;• Output: giải thích tiếng Việt" style="rounded=1;whiteSpace=wrap;fillColor=#d5e8d4;strokeColor=#82b366;fontSize=11;" vertex="1" parent="qp">
+      <mxGeometry x="440" y="200" width="190" height="80" as="geometry" />
+    </mxCell>
+
+    <!-- Pipeline arrows inside qp -->
+    <mxCell id="e_s1_s2" style="edgeStyle=orthogonalEdgeStyle;" edge="1" source="s1" target="s2" parent="qp"><mxGeometry relative="1" as="geometry"/></mxCell>
+    <mxCell id="e_s2_s3" style="edgeStyle=orthogonalEdgeStyle;" edge="1" source="s2" target="s3" parent="qp"><mxGeometry relative="1" as="geometry"/></mxCell>
+    <mxCell id="e_s3_s4" style="edgeStyle=orthogonalEdgeStyle;" edge="1" source="s3" target="s4" parent="qp"><mxGeometry relative="1" as="geometry"/></mxCell>
+    <mxCell id="e_s4_s5" style="edgeStyle=orthogonalEdgeStyle;" edge="1" source="s4" target="s5" parent="qp"><mxGeometry relative="1" as="geometry"/></mxCell>
+    <mxCell id="e_s5_s6" style="edgeStyle=orthogonalEdgeStyle;" edge="1" source="s5" target="s6" parent="qp"><mxGeometry relative="1" as="geometry"/></mxCell>
+
+    <!-- Retry loop label -->
+    <mxCell id="retry_note" value="🔄 Auto-retry (max 3)&#xa;với error feedback" style="text;html=1;strokeColor=#d79b00;fillColor=#ffe6cc;rounded=1;fontSize=10;" vertex="1" parent="qp">
+      <mxGeometry x="650" y="200" width="180" height="50" as="geometry" />
+    </mxCell>
+
+    <!-- Confidence note -->
+    <mxCell id="conf_note" value="📊 Confidence Score&#xa;HIGH&gt;0.8 → Execute&#xa;MED 0.5-0.8 → Confirm&#xa;LOW&lt;0.5 → Rephrase" style="text;html=1;strokeColor=#82b366;fillColor=#d5e8d4;rounded=1;fontSize=10;" vertex="1" parent="qp">
+      <mxGeometry x="20" y="200" width="180" height="70" as="geometry" />
+    </mxCell>
+
+    <!-- ===== ADMIN SERVICE ===== -->
+    <mxCell id="adm" value="&lt;b&gt;ADMIN SERVICE&lt;/b&gt;&#xa;• Schema Manager&#xa;• User Management&#xa;• Audit Logs" style="rounded=1;whiteSpace=wrap;fillColor=#f8cecc;strokeColor=#b85450;fontSize=11;" vertex="1" parent="1">
+      <mxGeometry x="1160" y="360" width="200" height="100" as="geometry" />
+    </mxCell>
+
+    <!-- ===== INFRASTRUCTURE LAYER ===== -->
+    <mxCell id="infra" value="INFRASTRUCTURE LAYER" style="swimlane;startSize=30;fillColor=#e1d5e7;strokeColor=#9673a6;fontStyle=1;fontSize=13;" vertex="1" parent="1">
+      <mxGeometry x="200" y="760" width="1160" height="280" as="geometry" />
+    </mxCell>
+
+    <!-- LLM Layer -->
+    <mxCell id="llm" value="🤖 LLM LAYER&#xa;────────────────&#xa;Local: Ollama&#xa;• qwen2.5-coder:1.5b (simple)&#xa;• qwen2.5-coder:7b (medium/complex)&#xa;────────────────&#xa;Cloud Fallback:&#xa;• Gemini 1.5 Flash (~$0.001/q)" style="rounded=1;whiteSpace=wrap;fillColor=#e1d5e7;strokeColor=#9673a6;fontSize=11;" vertex="1" parent="infra">
+      <mxGeometry x="30" y="50" width="240" height="200" as="geometry" />
+    </mxCell>
+
+    <!-- Cache Layer -->
+    <mxCell id="cache" value="⚡ CACHE LAYER (Redis)&#xa;────────────────&#xa;schema:{db} → TTL 1h&#xa;sql:{hash} → TTL 24h&#xa;result:{hash} → TTL 15m&#xa;embedding:{tbl} → TTL 7d&#xa;────────────────&#xa;Cache HIT: cost $0, &lt;100ms" style="rounded=1;whiteSpace=wrap;fillColor=#e1d5e7;strokeColor=#9673a6;fontSize=11;" vertex="1" parent="infra">
+      <mxGeometry x="310" y="50" width="240" height="200" as="geometry" />
+    </mxCell>
+
+    <!-- DB Layer -->
+    <mxCell id="db" value="🗄️ DATA LAYER (SQL Server)&#xa;────────────────&#xa;Primary DB (Write)&#xa;↓&#xa;Read Replica 1 (main)&#xa;Read Replica 2 (scale)&#xa;────────────────&#xa;User: text2sql_readonly&#xa;GRANT SELECT only | TLS/SSL" style="rounded=1;whiteSpace=wrap;fillColor=#e1d5e7;strokeColor=#9673a6;fontSize=11;" vertex="1" parent="infra">
+      <mxGeometry x="590" y="50" width="240" height="200" as="geometry" />
+    </mxCell>
+
+    <!-- Observability -->
+    <mxCell id="obs" value="📈 OBSERVABILITY STACK&#xa;────────────────&#xa;Prometheus → Metrics&#xa;Grafana → Dashboard&#xa;Loki → Structured Logs&#xa;Sentry → Error Tracking&#xa;────────────────&#xa;Alerts: latency&gt;5s, accuracy&lt;80%" style="rounded=1;whiteSpace=wrap;fillColor=#e1d5e7;strokeColor=#9673a6;fontSize=11;" vertex="1" parent="infra">
+      <mxGeometry x="870" y="50" width="240" height="200" as="geometry" />
+    </mxCell>
+
+    <!-- QP → Infra arrows -->
+    <mxCell id="e_qp_llm" style="edgeStyle=orthogonalEdgeStyle;" edge="1" source="qp" target="llm" parent="1"><mxGeometry relative="1" as="geometry"/></mxCell>
+    <mxCell id="e_qp_cache" style="edgeStyle=orthogonalEdgeStyle;" edge="1" source="qp" target="cache" parent="1"><mxGeometry relative="1" as="geometry"/></mxCell>
+    <mxCell id="e_qp_db" style="edgeStyle=orthogonalEdgeStyle;" edge="1" source="qp" target="db" parent="1"><mxGeometry relative="1" as="geometry"/></mxCell>
+    <mxCell id="e_qp_obs" style="edgeStyle=orthogonalEdgeStyle;" edge="1" source="qp" target="obs" parent="1"><mxGeometry relative="1" as="geometry"/></mxCell>
+
+    <!-- ===== RBAC BOX ===== -->
+    <mxCell id="rbac" value="🔐 RBAC&#xa;viewer → aggregated only&#xa;analyst → full detail&#xa;marketing → campaign data&#xa;admin → all tables" style="rounded=1;whiteSpace=wrap;fillColor=#f8cecc;strokeColor=#b85450;fontSize=11;" vertex="1" parent="1">
+      <mxGeometry x="1160" y="500" width="200" height="110" as="geometry" />
+    </mxCell>
+
+    <!-- ===== DEPLOYMENT PHASE BOX ===== -->
+    <mxCell id="deploy" value="🚀 DEPLOYMENT&#xa;──────────&#xa;Phase 1: Docker Compose&#xa;(Single Server 16GB)&#xa;Streamlit | FastAPI | Ollama&#xa;Redis | SQL Server&#xa;──────────&#xa;Phase 2: Kubernetes&#xa;Load Balancer → API Pods (HPA)&#xa;Ollama Cluster | Redis Cluster&#xa;SQL Server Read Replicas" style="rounded=1;whiteSpace=wrap;fillColor=#fff2cc;strokeColor=#d6b656;fontSize=11;" vertex="1" parent="1">
+      <mxGeometry x="1160" y="640" width="200" height="200" as="geometry" />
+    </mxCell>
+
+    <!-- ===== CIRCUIT BREAKER NOTE ===== -->
+    <mxCell id="cb" value="⚠️ Circuit Breaker&#xa;Ollama down → Gemini Flash&#xa;Cloud down → Queue + Error&#xa;DB down → Cached result" style="rounded=1;whiteSpace=wrap;fillColor=#ffe6cc;strokeColor=#d79b00;fontSize=11;" vertex="1" parent="1">
+      <mxGeometry x="200" y="700" width="220" height="70" as="geometry" />
+    </mxCell>
+
+    <!-- LLM Fallback arrow -->
+    <mxCell id="e_llm_fallback" value="Fallback" style="edgeStyle=orthogonalEdgeStyle;dashed=1;strokeColor=#d79b00;" edge="1" source="llm" target="cache" parent="1">
+      <mxGeometry relative="1" as="geometry" />
+    </mxCell>
+
+    <!-- ===== ROADMAP ===== -->
+    <mxCell id="road" value="📅 ROADMAP&#xa;Phase 1 (4-6w): FastAPI refactor, Redis, Validator, Schema RAG, Logging&#xa;Phase 2 (2-3m): K8s, Read Replica, RBAC, Grafana, Confidence Score, Slack Bot&#xa;Phase 3 (3-6m): Fine-tune, Multi-DB, NL Charts, Scheduled Reports" style="rounded=1;whiteSpace=wrap;fillColor=#f5f5f5;strokeColor=#666666;fontSize=11;" vertex="1" parent="1">
+      <mxGeometry x="200" y="1060" width="1160" height="70" as="geometry" />
+    </mxCell>
+
+  </root>
+</mxGraphModel>
