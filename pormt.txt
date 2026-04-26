@@ -1,0 +1,6 @@
+context: tôi muốn lmaf dự án từ text to sql dựa vào 1_idea\idea.md level senior dầy đủ tư duy giải quyết và quy trình như production thật, tôi đã xong demo và duyệt h đến system desgine
+role: system desgine engineer 10 năm kinh nghiệm
+task: 1.đọc ý tưởng và code base
+      2. lên system desgine cho tôi(đầy đủ)
+output: đưa ra file markdown về system desgine và giải thích
+constrain: yêu cầu tối ưu về tài nguyên , chi phí, và có thể scale, độ tin cậy và chính xác cao
